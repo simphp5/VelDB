@@ -1,5 +1,4 @@
 services:
-
   api:
     image: node:18
     working_dir: /app
@@ -20,3 +19,63 @@ services:
       POSTGRES_PASSWORD: admin
     ports:
       - "5432:5432"
+
+  rust-engine:
+    build:
+      context: ..
+      dockerfile: devops/docker/rust.Dockerfile
+    image: veldb/rust-engine:local
+    container_name: veldb-rust-engine
+    environment:
+      RUST_LOG: ${RUST_LOG:-info}
+      RUST_ENGINE_HOST: 0.0.0.0
+      RUST_ENGINE_PORT: ${RUST_ENGINE_PORT:-7000}
+      DB_DATA_DIR: /data
+    volumes:
+      - veldb_data:/data
+    expose:
+      - "7000"
+    restart: unless-stopped
+    networks:
+      - veldb_net
+
+  backend:
+    build:
+      context: ..
+      dockerfile: devops/docker/node.Dockerfile
+    image: veldb/backend:local
+    container_name: veldb-backend
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      RUST_ENGINE_HOST: rust-engine
+      RUST_ENGINE_PORT: ${RUST_ENGINE_PORT:-7000}
+      RUST_ENGINE_URL: ${RUST_ENGINE_URL:-tcp://rust-engine:7000}
+    depends_on:
+      - rust-engine
+    ports:
+      - "${API_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:3000', () => process.exit(0)).on('error', () => process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - veldb_net
+
+volumes:
+  veldb_data:
+    name: veldb_data
+
+networks:
+  veldb_net:
+    name: veldb_net
+    driver: bridge
