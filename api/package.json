@@ -1,16 +1,11 @@
 {
-  "name": "api",
+  "name": "veldb-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "api.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node api.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "express": "^5.2.1"
-  },
-  "description": ""
+    "express": "^4.18.2"
+  }
 }

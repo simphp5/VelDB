@@ -1,12 +1,29 @@
-const processQuery = (req, res) => {
-    const { sql } = req.body;
+const db = require("../service/db");
 
-    if (!sql) {
-        return res.status(400).json({ success: false, message: "SQL command is required" });
+exports.runQuery = async (req, res) => {
+    try {
+        const result = await db.runQuery(req.body.query);
+        res.json({ success: true, data: result });
+    } catch (err) {
+        res.status(500).json({ error: err });
     }
-
-    console.log("SQL command received:", sql);
-    res.json({ success: true, message: "Query received", sql });
 };
 
-module.exports = { processQuery };
+exports.getTables = async (req, res) => {
+    try {
+        const result = await db.runQuery("SHOW TABLES");
+        res.json({ tables: result });
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
+};
+
+exports.getSchema = async (req, res) => {
+    try {
+        const table = req.params.table;
+        const result = await db.runQuery(`DESCRIBE ${table}`);
+        res.json({ schema: result });
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
+};
