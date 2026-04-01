@@ -5,55 +5,89 @@ import TableFilter from "./TableFilter";
 import Pagination from "./Pagination";
 import QueryHistory from "./QueryHistory";
 
-const sampleData = [
-
-  { id: 1, name: "Harini", dept: "CSE" },
-  { id: 2, name: "Rahul", dept: "IT" },
-  { id: 3, name: "Anu", dept: "ECE" },
-  { id: 4, name: "Karthik", dept: "EEE" },
-  { id: 5, name: "Priya", dept: "CSE" },
-  { id: 6, name: "Vignesh", dept: "MECH" },
-  { id: 7, name: "Sneha", dept: "IT" },
-  { id: 8, name: "Arjun", dept: "CIVIL" },
-  { id: 9, name: "Divya", dept: "ECE" },
-  { id: 10, name: "Suresh", dept: "CSE" },
-  { id: 11, name: "Meena", dept: "IT" },
-  { id: 12, name: "Ravi", dept: "MECH" },
-  { id: 13, name: "Kavya", dept: "EEE" },
-  { id: 14, name: "Manoj", dept: "CIVIL" },
-  { id: 15, name: "Pooja", dept: "CSE" },
-  { id: 16, name: "Ajay", dept: "ECE" },
-  { id: 17, name: "Nisha", dept: "IT" },
-  { id: 18, name: "Deepak", dept: "MECH" },
-  { id: 19, name: "Swathi", dept: "EEE" },
-  { id: 20, name: "Kiran", dept: "CSE" }
-];
-
-
 function SqlPage() {
-  const [data, setData] = useState(sampleData);
+  const [columns, setColumns] = useState([]);
+  const [rows, setRows] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleRun = (query) => {
-    setHistory([query, ...history]);
-    setData(sampleData); // simulate result
+  // 🔥 REAL BACKEND CALL
+  const handleRun = async (query) => {
+    try {
+      setLoading(true);
+      setHistory((prev) => [query, ...prev]);
+
+      const res = await fetch("/api/query", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query })
+      });
+
+      const data = await res.json();
+
+      // expect: { columns: [], rows: [] }
+      setColumns(data.columns || []);
+      setRows(data.rows || []);
+    } catch (err) {
+      console.error("Query error:", err);
+      setColumns([]);
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filtered = data.filter((row) =>
-    row.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // 🔍 Filter logic
+ 
+   // 🔍 Filter logic
+const filteredRows = rows.filter((row) =>
+  Object.values(row).some((val) =>
+    String(val).toLowerCase().includes(search.toLowerCase())
+  )
+);
+
+const rowsPerPage = 10;
+const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+
+const paginatedRows = filteredRows.slice(
+  (page - 1) * rowsPerPage,
+  page * rowsPerPage
+);
+    Object.values(row).some((val) =>
+      String(val).toLowerCase().includes(search.toLowerCase())
+    )
+  ;
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>SQL Dashboard </h2>
+      <h2>SQL Dashboard</h2>
 
-      <SqlEditor onRun={handleRun} />
-      <TableFilter setSearch={setSearch} />
-      <QueryResults data={filtered} />
-      <Pagination page={page} setPage={setPage} />
-      <QueryHistory history={history} />
+      <SqlEditor onRun={handleRun} loading={loading} />
+
+      <TableFilter 
+  search={search} 
+  setSearch={setSearch} 
+  total={filteredRows.length} 
+/>
+
+      <QueryResults columns={columns} rows={paginatedRows} />
+
+      <Pagination
+  page={page}
+  totalPages={totalPages}
+  setPage={setPage}
+  totalRows={filteredRows.length}
+  rowsPerPage={rowsPerPage}
+/>
+
+     <QueryHistory 
+          history={history} 
+          onSelect={(q) => handleRun(q)} 
+/>
     </div>
   );
 }

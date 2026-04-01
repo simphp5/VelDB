@@ -1,0 +1,8 @@
+  Database initialized
+
+  VelDB Server running on http://localhost:3001
+  POST /api/query     - Execute SQL
+  GET  /api/history   - Query history
+  POST /api/ai-query  - NL to SQL
+  GET  /api/stats     - Dashboard stats
+
