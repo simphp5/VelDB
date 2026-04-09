@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-function SqlEditor({ onRun, loading = false, initialQuery = "" }) {
+function SqlEditor({ onRun, onExplain, loading = false, initialQuery = "", onQueryChange }) {
   const [query, setQuery] = useState("");
   const textareaRef = useRef(null);
 
@@ -52,7 +52,10 @@ function SqlEditor({ onRun, loading = false, initialQuery = "" }) {
         rows="6"
         placeholder="Try: SELECT * FROM customers;"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          if (onQueryChange) onQueryChange(e.target.value);
+        }}
         onKeyDown={handleKeyDown}
         spellCheck="false"
         disabled={loading}
@@ -77,20 +80,29 @@ function SqlEditor({ onRun, loading = false, initialQuery = "" }) {
         <span className="editor-hint">
           <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to run · <kbd>Tab</kbd> to indent
         </span>
-        <button
-          className="btn btn-primary"
-          onClick={() => onRun(query)}
-          disabled={loading || !query.trim()}
-          id="run-query-btn"
-        >
-          {loading ? (
-            <>
-              <span className="spinner" /> Running...
-            </>
-          ) : (
-            "▶️ Run Query"
-          )}
-        </button>
+        <div style={{display: 'flex', gap: '8px'}}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => onExplain && onExplain(query)}
+            disabled={loading || !query.trim()}
+          >
+            🔍 Explain
+          </button>
+          <button
+            className="btn btn-primary"
+            onClick={() => onRun(query)}
+            disabled={loading || !query.trim()}
+            id="run-query-btn"
+          >
+            {loading ? (
+              <>
+                <span className="spinner" /> Running...
+              </>
+            ) : (
+              "▶️ Run Query"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

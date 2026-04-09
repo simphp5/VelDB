@@ -42,3 +42,39 @@ export async function getStats() {
   if (!res.ok) throw new Error(data.error || 'Failed to fetch stats');
   return data;
 }
+
+export async function getSchema() {
+  const res = await fetch(`${API_BASE}/schema`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to fetch schema');
+  return data;
+}
+
+export async function explainQuery(sql) {
+  const res = await fetch(`${API_BASE}/explain`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sql }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Explain query failed');
+  return data;
+}
+
+export async function saveQuery(name, sql) {
+  const res = await fetch(`${API_BASE}/save-query`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, sql }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to save query');
+  return data;
+}
+
+export async function getSavedQueries() {
+  const res = await fetch(`${API_BASE}/get-queries`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to fetch saved queries');
+  return data;
+}

@@ -216,6 +216,66 @@ app.get('/api/stats', (req, res) => {
   }
 });
 
+// ─── GET /api/schema ─── Fetch Database Schema ────────────────────────
+app.get('/api/schema', (req, res) => {
+  try {
+    const db = getDb();
+    const { rows: tables } = queryToObjects(db, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+    
+    const schema = tables.map(table => {
+      const { rows: columns } = queryToObjects(db, `PRAGMA table_info(${table.name})`);
+      return {
+        name: table.name,
+        columns: columns.map(c => ({ name: c.name, type: c.type }))
+      };
+    });
+    
+    res.json(schema);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── POST /api/explain ─── Explain Query ──────────────────────────────
+app.post('/api/explain', (req, res) => {
+  const { sql } = req.body;
+  if (!sql || !sql.trim()) {
+    return res.status(400).json({ error: 'SQL query is required' });
+  }
+  try {
+    const db = getDb();
+    const { columns, rows } = queryToObjects(db, `EXPLAIN QUERY PLAN ${sql}`);
+    res.json({ columns, rows });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ─── POST /api/save-query ─── Save Query ──────────────────────────────
+app.post('/api/save-query', (req, res) => {
+  const { name, sql } = req.body;
+  if (!name || !sql) return res.status(400).json({ error: 'Name and SQL are required' });
+  try {
+    const db = getDb();
+    db.run("INSERT INTO saved_queries (name, query_text) VALUES (?, ?)", [name, sql]);
+    saveDb();
+    res.json({ message: 'Query saved' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── GET /api/get-queries ─── Get Saved Queries ───────────────────────
+app.get('/api/get-queries', (req, res) => {
+  try {
+    const db = getDb();
+    const { rows } = queryToObjects(db, "SELECT * FROM saved_queries ORDER BY created_at DESC");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── Start Server ──────────────────────────────────────────────────────
 async function start() {
   await initDatabase();
@@ -223,10 +283,14 @@ async function start() {
 
   app.listen(PORT, () => {
     console.log(`\n  VelDB Server running on http://localhost:${PORT}`);
-    console.log(`  POST /api/query     - Execute SQL`);
-    console.log(`  GET  /api/history   - Query history`);
-    console.log(`  POST /api/ai-query  - NL to SQL`);
-    console.log(`  GET  /api/stats     - Dashboard stats\n`);
+    console.log(`  POST /api/query       - Execute SQL`);
+    console.log(`  GET  /api/history     - Query history`);
+    console.log(`  POST /api/ai-query    - NL to SQL`);
+    console.log(`  GET  /api/stats       - Dashboard stats`);
+    console.log(`  GET  /api/schema      - DB Schema`);
+    console.log(`  POST /api/explain     - Query Plan`);
+    console.log(`  POST /api/save-query  - Save Query`);
+    console.log(`  GET  /api/get-queries - List Queries\n`);
   });
 }
 

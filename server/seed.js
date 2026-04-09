@@ -26,6 +26,16 @@ export function seedDatabase() {
     )
   `);
 
+  // Create saved queries table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS saved_queries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      query_text TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
   // Seed students only if table is empty
   const result = db.exec('SELECT COUNT(*) as count FROM students');
   const count = result[0]?.values[0][0] || 0;
@@ -60,6 +70,81 @@ export function seedDatabase() {
     }
     stmt.free();
     console.log('  Seeded 20 students');
+  }
+
+  // Create products table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      category TEXT NOT NULL,
+      price REAL NOT NULL,
+      stock INTEGER DEFAULT 0
+    )
+  `);
+
+  // Create customers table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS customers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      join_date TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  // Create orders table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_id INTEGER NOT NULL,
+      total_amount REAL NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      order_date TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (customer_id) REFERENCES customers(id)
+    )
+  `);
+
+  // Seed products
+  const productCount = db.exec('SELECT COUNT(*) as count FROM products')[0]?.values[0][0] || 0;
+  if (productCount === 0) {
+    const products = [
+      ['Laptop', 'Electronics', 999.99, 50],
+      ['Smartphone', 'Electronics', 699.99, 150],
+      ['Desk Chair', 'Furniture', 149.99, 200],
+      ['Coffee Maker', 'Appliances', 89.99, 75],
+      ['Headphones', 'Electronics', 199.99, 120]
+    ];
+    const stmt = db.prepare('INSERT INTO products (name, category, price, stock) VALUES (?, ?, ?, ?)');
+    for (const p of products) stmt.run(p);
+    stmt.free();
+  }
+
+  // Seed customers
+  const customerCount = db.exec('SELECT COUNT(*) as count FROM customers')[0]?.values[0][0] || 0;
+  if (customerCount === 0) {
+    const customers = [
+      ['Alice Smith', 'alice@example.com'],
+      ['Bob Jones', 'bob@example.com'],
+      ['Charlie Brown', 'charlie@example.com']
+    ];
+    const stmt = db.prepare('INSERT INTO customers (name, email) VALUES (?, ?)');
+    for (const c of customers) stmt.run(c);
+    stmt.free();
+  }
+
+  // Seed orders
+  const orderCount = db.exec('SELECT COUNT(*) as count FROM orders')[0]?.values[0][0] || 0;
+  if (orderCount === 0) {
+    const orders = [
+      [1, 999.99, 'completed'],
+      [1, 199.99, 'pending'],
+      [2, 149.99, 'shipped'],
+      [3, 89.99, 'completed']
+    ];
+    const stmt = db.prepare('INSERT INTO orders (customer_id, total_amount, status) VALUES (?, ?, ?)');
+    for (const o of orders) stmt.run(o);
+    stmt.free();
   }
 
   saveDb();
