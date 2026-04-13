@@ -1,30 +1,41 @@
-// routes/query.js
 const express = require("express");
-const {
-  authenticateToken,
-  authorizeRoles
-} = require("../middleware/auth");
-
 const router = express.Router();
 
-// Only Admin and Editor
-router.post(
-  "/run_query",
-  authenticateToken,
-  authorizeRoles("admin", "editor"),
-  (req, res) => {
-    res.send("Query executed");
-  }
-);
+const { addQueryJob, getJobStatus } = require("../jobs/queryJob");
 
-// All roles
-router.get(
-  "/schema",
-  authenticateToken,
-  authorizeRoles("admin", "editor", "viewer"),
-  (req, res) => {
-    res.send("Schema data");
+// Run query
+router.post("/run_query", async (req, res) => {
+  const { query } = req.body;
+
+  if (!query) {
+    return res.status(400).json({ error: "Query is required" });
   }
-);
+
+  const job = await addQueryJob(query);
+
+  res.json({
+    message: "Query queued",
+    jobId: job.id,
+  });
+});
+
+// Job status
+router.get("/status/:id", async (req, res) => {
+  const result = await getJobStatus(req.params.id);
+
+  if (!result) {
+    return res.status(404).json({ error: "Job not found" });
+  }
+
+  res.json(result);
+});
+
+// Schema
+router.get("/schema/:table", (req, res) => {
+  res.json({
+    table: req.params.table,
+    columns: ["id", "name", "email"],
+  });
+});
 
 module.exports = router;
