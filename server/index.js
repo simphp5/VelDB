@@ -33,14 +33,15 @@ function queryScalar(db, sql) {
 
 // ─── POST /api/query ─── Execute SQL ───────────────────────────────────
 app.post('/api/query', (req, res) => {
-  const { sql } = req.body;
+  // Support both frontend patterns (sql or query)
+  const queryStr = req.body.query || req.body.sql;
   const db = getDb();
 
-  if (!sql || !sql.trim()) {
+  if (!queryStr || typeof queryStr !== 'string' || !queryStr.trim()) {
     return res.status(400).json({ error: 'SQL query is required' });
   }
 
-  const trimmed = sql.trim();
+  const trimmed = queryStr.trim();
   const isSelect = /^(SELECT|PRAGMA|EXPLAIN)/i.test(trimmed);
 
   try {
@@ -136,6 +137,33 @@ app.post('/api/ai-query', (req, res) => {
   if (lower.match(/show\s+(all\s+)?tables/)) {
     sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'";
   }
+  else if (lower.match(/show\s+product\s+names\s+and\s+stock\s+quantities/)) {
+    sql = 'SELECT name, stock FROM products;';
+  }
+  else if (lower.match(/(show|get|list|display|fetch)\s+(all\s+)?products/)) {
+    sql = 'SELECT * FROM products;';
+  }
+  else if (lower.match(/(count|how many)\s+products/)) {
+    sql = 'SELECT COUNT(*) as total_count FROM products;';
+  }
+  else if (lower.match(/(highest|most expensive|top).*priced?\s+product\s+(in|of|for)\s+([a-zA-Z0-9_]+)/)) {
+    const match = lower.match(/(highest|most expensive|top).*priced?\s+product\s+(in|of|for)\s+([a-zA-Z0-9_]+)/);
+    // Extract the category and make the first letter uppercase (e.g. electronics -> Electronics)
+    const category = match[3].charAt(0).toUpperCase() + match[3].slice(1).toLowerCase();
+    sql = `SELECT * FROM products WHERE category = '${category}' ORDER BY price DESC LIMIT 1;`;
+  }
+  else if (lower.match(/(highest|most expensive|top).*priced?\s+product/)) {
+    sql = 'SELECT * FROM products ORDER BY price DESC LIMIT 1;';
+  }
+  else if (lower.match(/(show|get|list|display|fetch)\s+(all\s+)?customers/)) {
+    sql = 'SELECT * FROM customers;';
+  }
+  else if (lower.match(/(count|how many)\s+(pending\s+)?orders/)) {
+    sql = "SELECT COUNT(*) FROM orders WHERE status = 'pending';";
+  }
+  else if (lower.match(/(find|get|show|calculate)\s+average\s+order\s+value/)) {
+    sql = "SELECT AVG(total_amount) FROM orders;";
+  }
   else if (lower.match(/(show|get|list|display|fetch)\s+(all\s+)?(students|data|records|everything)/)) {
     sql = 'SELECT * FROM students';
   }
@@ -180,7 +208,7 @@ app.post('/api/ai-query', (req, res) => {
     sql = `SELECT * FROM students ORDER BY ${col} ${dir}`;
   }
   else {
-    sql = `-- Could not auto-generate SQL for: "${prompt}"\n-- Try: "show all students", "find students in CSE", "top 5 students"\nSELECT * FROM students LIMIT 10`;
+    sql = `-- Could not auto-generate SQL for: "${prompt}"\n-- Please refer to available schema.`;
   }
 
   res.json({
