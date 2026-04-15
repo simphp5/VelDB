@@ -1,0 +1,402 @@
+[
+    {
+        "timestamp": "2026-04-13T09:56:09.226006",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.230616",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.234643",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.238592",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.242352",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.246236",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.249877",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.254321",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.258362",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.262291",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.265961",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.270030",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.274892",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.279494",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.283662",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.288499",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.292156",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.297106",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.302207",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.307346",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.312991",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.318615",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.324281",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.329694",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.335520",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.341327",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.346952",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.352766",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.358022",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.363864",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.370317",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.375317",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.381961",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.386043",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.391099",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.395019",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.399263",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.403068",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.407143",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.412107",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.416205",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.420997",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.426861",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.431941",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.437935",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.443398",
+        "nl_query": "total sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.450303",
+        "nl_query": "count users",
+        "expected_sql": "SELECT COUNT(*) FROM users;",
+        "generated_sql": "SELECT COUNT(*) FROM users;",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.456027",
+        "nl_query": "sales in jan",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Jan';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.461768",
+        "nl_query": "sales in march",
+        "expected_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "generated_sql": "SELECT sales FROM sales_data WHERE month = 'Mar';",
+        "score": 1.0,
+        "notes": ""
+    },
+    {
+        "timestamp": "2026-04-13T09:56:09.467188",
+        "nl_query": "what is the sum of sales",
+        "expected_sql": "SELECT SUM(sales) FROM sales_data;",
+        "generated_sql": "SELECT SUM(sales) FROM sales_data;",
+        "score": 1.0,
+        "notes": ""
+    }
+]
