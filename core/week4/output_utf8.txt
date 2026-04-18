@@ -1,0 +1,58 @@
+﻿Initializing VelDB Transaction Manager...
+
+=== Initial Data ===
+(Empty table)
+===============
+
+Inserting data directly to disk (No active tx)...
+(Disk) Inserted row 1
+(Disk) Inserted row 2
+
+=== Data after direct insert ===
+ID: 1, Name: Alice, Salary: 50000
+ID: 2, Name: Bob, Salary: 60000
+===============
+
+--- Starting ROLLBACK Demo ---
+> BEGIN Transaction
+(Staged) Inserted row 3
+(Staged) Updated row 1
+(Staged) Deleted row 2
+
+=== Data DURING Transaction (Staged) ===
+ID: 1, Name: Alice Smith, Salary: 55000
+ID: 3, Name: Charlie, Salary: 70000
+===============
+
+> ROLLBACK Transaction
+
+=== Data AFTER Rollback (Charlie not saved, Alice unchanged, Bob returns) ===
+ID: 1, Name: Alice, Salary: 50000
+ID: 2, Name: Bob, Salary: 60000
+===============
+
+--- Starting COMMIT Demo ---
+> BEGIN Transaction
+(Staged) Inserted row 4
+(Staged) Updated row 2
+
+=== Data DURING Transaction (Staged) ===
+ID: 1, Name: Alice, Salary: 50000
+ID: 2, Name: Robert, Salary: 65000
+ID: 4, Name: David, Salary: 45000
+===============
+
+> COMMIT Transaction
+
+=== Data AFTER Commit (Staged changes persisted) ===
+ID: 1, Name: Alice, Salary: 50000
+ID: 2, Name: Robert, Salary: 65000
+ID: 4, Name: David, Salary: 45000
+===============
+
+--- Testing Error Handling ---
+Expected Error (Commit without Begin): Cannot commit without an active transaction
+Expected Error (Rollback without Begin): Cannot rollback without an active transaction
+> BEGIN Transaction
+Expected Error (Begin already active): Transaction already active
+> ROLLBACK Transaction

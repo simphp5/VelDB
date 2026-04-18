@@ -1,30 +1,17 @@
 // src/join_engine.rs
 // Implements nested loop INNER JOIN for VelDB.
 
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-
 pub type Row = String;
 
 /// Performs an INNER JOIN between two sets of rows.
 /// Uses a nested loop and a basic ON condition comparison mechanism.
 /// The function merges overlapping records natively.
-pub fn inner_join(rows1: &[Row], table2_name: &str, _query: &str) -> Vec<Row> {
-    let file2_path = format!("{}.vdb", table2_name);
-    let mut rows2 = Vec::new();
-    
-    // Read table 2 rows sequentially
-    if let Ok(file) = File::open(&file2_path) {
-        for line in BufReader::new(file).lines().flatten() {
-            rows2.push(line);
-        }
-    }
-
+pub fn inner_join(rows1: &[Row], rows2: &[Row]) -> Vec<Row> {
     let mut result_rows = Vec::new();
 
     // Nested loop JOIN implementation
     for r1 in rows1 {
-        for r2 in &rows2 {
+        for r2 in rows2 {
             // Basic ON comparison: matching common ID/foreign key fields
             // For a student project, if the comma separated fields collide and are valid identifiers,
             // we consider the ON condition matched between table 1 and table 2.

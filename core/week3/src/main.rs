@@ -1,6 +1,7 @@
 mod executor;
 mod join_engine;
 mod optimizer;
+mod transaction;
 
 use executor::Executor;
 use std::fs::File;
@@ -82,7 +83,7 @@ fn main() {
         "SELECT * FROM customers WHERE email = 'test@example.com';",
     ];
 
-    let executor = Executor::new();
+    let mut executor = Executor::new();
 
     println!("[2] Running Test Queries...\n");
     for (i, query) in queries.iter().enumerate() {

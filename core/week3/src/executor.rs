@@ -1,119 +1,156 @@
 // src/executor.rs
 // Manages the execution of SQL-like commands for VelDB.
-
-use std::fs::{File, OpenOptions};
-use std::io::{BufRead, BufReader, Write};
+// Week 4 adds a very small transaction layer (BEGIN / COMMIT / ROLLBACK).
 
 // Integrate optimizer and join_engine logic
 use crate::optimizer::choose_scan_strategy;
 use crate::join_engine::{inner_join, Row};
+use crate::transaction::TransactionManager;
 
-pub struct Executor;
+pub struct Executor {
+    txn_manager: TransactionManager,
+}
 
 impl Executor {
     pub fn new() -> Self {
-        Executor
+        Executor {
+            txn_manager: TransactionManager::new(),
+        }
     }
 
     /// Primary execution flow routing
-    pub fn execute_query(&self, query: &str) -> String {
+    pub fn execute_query(&mut self, query: &str) -> String {
         let query_upper = query.trim().to_uppercase();
         
-        if query_upper.starts_with("UPDATE") {
-            self.execute_update(query)
+        if query_upper.starts_with("BEGIN") {
+            return self.txn_manager.begin();
+        } else if query_upper.starts_with("COMMIT") {
+            return self.txn_manager.commit();
+        } else if query_upper.starts_with("ROLLBACK") {
+            return self.txn_manager.rollback();
+        } else if query_upper.starts_with("INSERT") {
+            return self.execute_insert(query);
+        } else if query_upper.starts_with("UPDATE") {
+            return self.execute_update(query);
         } else if query_upper.starts_with("DELETE") {
-            self.execute_delete(query)
+            return self.execute_delete(query);
         } else if query_upper.starts_with("SELECT") {
-            self.execute_select(query)
+            return self.execute_select(query);
         } else {
             "Error: Unsupported query type".to_string()
         }
     }
 
+    /// Basic INSERT support for staging new rows.
+    /// Ex: INSERT INTO customers VALUES (5, 'Bob', 'Paris');
+    fn execute_insert(&mut self, query: &str) -> String {
+        let tokens: Vec<&str> = query.split_whitespace().collect();
+        if tokens.len() < 4 || tokens[1].to_uppercase() != "INTO" {
+            return "Error: Invalid INSERT query format".to_string();
+        }
+        let table_name = tokens[2];
+
+        // Everything after "VALUES" becomes the stored row.
+        let values_part = match query.to_uppercase().find("VALUES") {
+            Some(pos) => &query[pos + 6..],
+            None => return "Error: INSERT must contain VALUES".to_string(),
+        };
+        let cleaned = values_part
+            .trim()
+            .trim_start_matches('(')
+            .trim_end_matches(')')
+            .trim_end_matches(';')
+            .trim()
+            .to_string();
+
+        let mut rows = match self.txn_manager.load_for_insert(table_name) {
+            Ok(r) => r,
+            Err(e) => return e,
+        };
+        rows.push(cleaned);
+
+        if self.txn_manager.is_active() {
+            self.txn_manager.stage_table(table_name, rows);
+            "1 row inserted (staged)".to_string()
+        } else {
+            if let Err(err) = TransactionManager::write_table_immediately(table_name, &rows) {
+                return err;
+            }
+            "1 row inserted".to_string()
+        }
+    }
+
     /// Executing an UPDATE query
     /// Ex: UPDATE customers SET city = 'Chennai' WHERE customer_id = 1;
-    fn execute_update(&self, query: &str) -> String {
+    fn execute_update(&mut self, query: &str) -> String {
         let tokens: Vec<&str> = query.split_whitespace().collect();
         if tokens.len() < 8 {
             return "Error: Invalid UPDATE query format".to_string();
         }
 
         let table_name = tokens[1];
-        let file_path = format!("{}.vdb", table_name);
 
         // Parse SET value and WHERE condition string
         let set_val = tokens[5].trim_matches('\'').trim_matches(';');
         let where_val = tokens.last().unwrap().trim_matches('\'').trim_matches(';');
         
-        let mut rows = Vec::new();
+        let rows = match self.txn_manager.get_or_stage_table(table_name) {
+            Ok(r) => r,
+            Err(e) => return e,
+        };
         let mut updated_count = 0;
 
         // Read and modify rows
-        if let Ok(file) = File::open(&file_path) {
-            let reader = BufReader::new(file);
-            for line in reader.lines().flatten() {
-                if line.contains(where_val) {
-                    rows.push(format!("{} (MODIFIED: {})", line, set_val));
-                    updated_count += 1;
-                } else {
-                    rows.push(line);
-                }
-            }
-        } else {
-            return format!("Error: Table '{}' not found", table_name);
-        }
-
-        // Rewrite file with modified rows intact
-        if let Ok(mut file) = OpenOptions::new().write(true).truncate(true).create(false).open(&file_path) {
-            for row in rows {
-                let _ = writeln!(file, "{}", row);
+        let mut new_rows = Vec::new();
+        for line in rows.into_iter() {
+            if line.contains(where_val) {
+                new_rows.push(format!("{} (MODIFIED: {})", line, set_val));
+                updated_count += 1;
+            } else {
+                new_rows.push(line);
             }
         }
 
-        format!("{} row(s) updated", updated_count)
+        if self.txn_manager.is_active() {
+            self.txn_manager.stage_table(table_name, new_rows);
+        } else if let Err(err) = TransactionManager::write_table_immediately(table_name, &new_rows) {
+            return err;
+        }
+
+        format!("{} row(s) updated{}", updated_count, if self.txn_manager.is_active() { " (staged)" } else { "" })
     }
 
     /// Executing a DELETE query
     /// Ex: DELETE FROM customers WHERE customer_id = 3;
-    fn execute_delete(&self, query: &str) -> String {
+    fn execute_delete(&mut self, query: &str) -> String {
         let tokens: Vec<&str> = query.split_whitespace().collect();
         if tokens.len() < 5 {
             return "Error: Invalid DELETE query format".to_string();
         }
 
         let table_name = tokens[2];
-        let file_path = format!("{}.vdb", table_name);
         let where_val = tokens.last().unwrap().trim_matches('\'').trim_matches(';');
         
-        let mut rows = Vec::new();
-        let mut deleted_count = 0;
+        let mut rows = match self.txn_manager.get_or_stage_table(table_name) {
+            Ok(r) => r,
+            Err(e) => return e,
+        };
+        let original_len = rows.len();
 
-        // Parse and skip matching rows
-        if let Ok(file) = File::open(&file_path) {
-            let reader = BufReader::new(file);
-            for line in reader.lines().flatten() {
-                if line.contains(where_val) {
-                    deleted_count += 1; // Removed row
-                } else {
-                    rows.push(line);
-                }
-            }
-        } else {
-            return format!("Error: Table '{}' not found", table_name);
+        rows.retain(|line| !line.contains(where_val));
+        let deleted_count = original_len.saturating_sub(rows.len());
+
+        if self.txn_manager.is_active() {
+            self.txn_manager.stage_table(table_name, rows);
+        } else if let Err(err) = TransactionManager::write_table_immediately(table_name, &rows) {
+            return err;
         }
 
-        // Rewrite file exclusively housing continuing rows
-        if let Ok(mut file) = OpenOptions::new().write(true).truncate(true).create(false).open(&file_path) {
-            for row in rows {
-                let _ = writeln!(file, "{}", row);
-            }
-        }
-
-        format!("{} row(s) deleted", deleted_count)
+        format!("{} row(s) deleted{}", deleted_count, if self.txn_manager.is_active() { " (staged)" } else { "" })
     }
 
     /// Execute SELECT flow adhering strictly to: SELECT -> WHERE -> JOIN -> ORDER BY -> LIMIT
-    fn execute_select(&self, query: &str) -> String {
+    fn execute_select(&mut self, query: &str) -> String {
         let tokens: Vec<&str> = query.split_whitespace().collect();
         let mut table_name = "";
         let mut join_table = "";
@@ -147,28 +184,26 @@ impl Executor {
             i += 1;
         }
 
-        let file_path = format!("{}.vdb", table_name);
-        let mut rows: Vec<Row> = Vec::new();
+        let mut rows: Vec<Row> = match self.txn_manager.read_current_rows(table_name) {
+            Ok(r) => r,
+            Err(e) => return e,
+        };
 
-        // [STEP 1] Read base query and [STEP 2] Process WHERE filters
-        if let Ok(file) = File::open(&file_path) {
-            let reader = BufReader::new(file);
-            for line in reader.lines().flatten() {
-                if let Some(val) = where_val {
-                    if !line.contains(val) {
-                        continue;
-                    }
-                }
-                rows.push(line);
-            }
+        // [STEP 1] WHERE filtering
+        if let Some(val) = where_val {
+            rows.retain(|line| line.contains(val));
         }
 
-        // [STEP 3] INNER JOIN invocation natively
+        // [STEP 2] INNER JOIN invocation uses staged data when present
         if !join_table.is_empty() {
-            rows = inner_join(&rows, join_table, query);
+            let join_rows = match self.txn_manager.read_current_rows(join_table) {
+                Ok(r) => r,
+                Err(e) => return e,
+            };
+            rows = inner_join(&rows, &join_rows);
         }
 
-        // [STEP 4] Apply ORDER BY sorting dynamically
+        // [STEP 3] Apply ORDER BY sorting dynamically
         if has_order_by {
             rows.sort(); 
             if order_by_desc {
@@ -176,7 +211,7 @@ impl Executor {
             }
         }
 
-        // [STEP 5] Apply LIMIT processing after sorting evaluation
+        // [STEP 4] Apply LIMIT processing after sorting evaluation
         if let Some(n) = limit {
             rows.truncate(n);
         }
