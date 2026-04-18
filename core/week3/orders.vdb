@@ -1,0 +1,5 @@
+1, 1, status = 'Processing'; (MODIFIED: Shipped)
+100, 2, status = 'Processing'; (MODIFIED: Shipped)
+total = 500
+total = 1000
+total = 200
